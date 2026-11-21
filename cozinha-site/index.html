@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<meta charset="utf-8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1A42A0">
+<meta name="apple-mobile-web-app-title" content="Compras">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Listas de compras</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Young+Serif&display=swap">
+<style>
+:root{
+  --bg:#F3F5FA; --surface:#FFFFFF; --surface-2:#E9EDF5; --ink:#141B2E; --muted:#556079; --line:#D5DCE8;
+  --cobalt:#1D4AB0; --saffron:#D8930E;
+  --tile-bg:#1A42A0; --tile-mark:rgba(255,255,255,.17); --tile-soft:rgba(255,255,255,.08);
+  --merc:#2B7A4B; --lupa:#C99410; --dia:#C8322E; --unide:#D9691C;
+  --f-display:"Young Serif", Georgia, serif;
+  --f-body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0D1322; --surface:#151D31; --surface-2:#1C263E; --ink:#E7EBF4; --muted:#9BA6BD; --line:#2A3654;
+  --cobalt:#82A5F6; --saffron:#F0B53C; --tile-bg:#13296B; --tile-mark:rgba(255,255,255,.12); --tile-soft:rgba(255,255,255,.05);
+  --merc:#5FC28C; --lupa:#F2C64A; --dia:#F07B76; --unide:#F4A061; color-scheme:dark }}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--f-body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+[hidden]{display:none!important}
+.wrap{max-width:900px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;line-height:1.15;text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--saffron);outline-offset:2px;border-radius:6px}
+
+.hero{background-color:var(--tile-bg);color:#fff;
+  background-image:
+    radial-gradient(circle at 50% 50%, transparent 0 8px, var(--tile-mark) 8px 10px, transparent 10.5px),
+    radial-gradient(circle at 50% 50%, var(--tile-soft) 0 18px, transparent 18.5px),
+    radial-gradient(circle at 0 0, var(--tile-mark) 0 12px, transparent 12.5px),
+    radial-gradient(circle at 100% 0, var(--tile-mark) 0 12px, transparent 12.5px),
+    radial-gradient(circle at 0 100%, var(--tile-mark) 0 12px, transparent 12.5px),
+    radial-gradient(circle at 100% 100%, var(--tile-mark) 0 12px, transparent 12.5px),
+    linear-gradient(var(--tile-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--tile-soft) 1px, transparent 1px);
+  background-size:56px 56px}
+.hero-in{padding-block:36px 30px;display:grid;gap:10px}
+.eyebrow{margin:0;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;font-weight:700;opacity:.85}
+.hero h1{font-size:clamp(2.1rem,6vw,3.2rem)}
+.lede{margin:0;max-width:60ch;opacity:.92}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tab{--c:var(--cobalt);border:0;background:none;padding:14px 12px 11px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:7px}
+.tab .dot{width:11px;height:11px;border-radius:50%;background:var(--c)}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--c)}
+.tab .n{font-weight:400;font-size:.78rem;background:var(--surface-2);color:var(--muted);border-radius:999px;padding:0 7px;font-variant-numeric:tabular-nums}
+.t-merc{--c:var(--merc)} .t-lupa{--c:var(--lupa)} .t-dia{--c:var(--dia)} .t-unide{--c:var(--unide)}
+
+main{padding-block:22px 60px}
+.store{--c:var(--cobalt)}
+.banner{border-radius:14px;padding:18px 18px 16px;background:color-mix(in srgb,var(--c) 14%,var(--surface));border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));display:grid;gap:8px;margin-bottom:16px}
+.banner .top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.banner h2{font-size:1.9rem;color:color-mix(in srgb,var(--c) 80%,var(--ink))}
+.pill{font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 11px;background:var(--c);color:#fff}
+@media (prefers-color-scheme: dark){.pill{color:#0D1322}}
+.banner p{margin:0}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:14px}
+.prog{flex:1 1 220px;display:grid;gap:5px}
+.prog small{color:var(--muted);font-variant-numeric:tabular-nums}
+.track{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.track i{display:block;height:100%;width:0;background:var(--c);transition:width .2s}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 13px;font-weight:700;font-size:.9rem}
+.btn:hover{border-color:var(--c)}
+.btn[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff}
+
+.sec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px;overflow:hidden}
+.sec h3{font-size:1.2rem;padding:13px 16px 10px;border-bottom:1px dashed var(--line);display:flex;align-items:center;gap:8px}
+.sec h3::before{content:"";width:6px;height:18px;border-radius:3px;background:var(--c)}
+ul.items{list-style:none;margin:0;padding:4px 0}
+.item label{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:4px 10px;align-items:start;padding:9px 16px;cursor:pointer}
+.item + .item label{border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.item input{appearance:none;width:22px;height:22px;margin:1px 0 0;border:2px solid color-mix(in srgb,var(--c) 60%,var(--line));border-radius:6px;display:grid;place-content:center;cursor:pointer;background:var(--surface)}
+.item input:checked{background:var(--c);border-color:var(--c)}
+.item input:checked::after{content:"";width:11px;height:6px;border:2.5px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+.name{font-weight:700}
+.qty{color:var(--muted);font-weight:400}
+.note{grid-column:2 / -1;font-size:.88rem;color:var(--muted);margin-top:-2px}
+.price{font-size:.85rem;font-weight:700;white-space:nowrap;padding:2px 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 12%,var(--surface));color:color-mix(in srgb,var(--c) 75%,var(--ink));font-variant-numeric:tabular-nums}
+.item input:checked ~ .name,.item input:checked ~ .name .qty{text-decoration:line-through;color:var(--muted)}
+.store.onlyleft .item.done{display:none}
+.avoid{padding:12px 16px;display:grid;gap:6px}
+.avoid p{margin:0;font-size:.93rem;color:var(--muted)}
+.avoid p b{color:var(--ink)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+.card{--c:var(--cobalt);background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:6px;border-top:4px solid var(--c)}
+.card h3{font-size:1.15rem}
+.card p{margin:0;font-size:.93rem}
+.card .muted{color:var(--muted)}
+.tag{--c:var(--muted);display:inline-flex;align-items:center;gap:5px;font-size:.78rem;border:1px solid var(--line);border-radius:6px;padding:1px 7px;background:var(--surface)}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--c)}
+.sub{font-size:1.45rem;margin:22px 0 12px}
+.tip{margin:0 0 16px;color:var(--muted);font-size:.93rem}
+</style>
+<body>
+<style>.sitebar{background:#0F2A6B;color:#fff;font:700 .9rem/1 "Atkinson Hyperlegible",system-ui,sans-serif}.sitebar .in{max-width:1180px;margin:0 auto;display:flex;gap:4px;padding:6px max(12px,env(safe-area-inset-left,0px))}.sitebar a{color:#fff;text-decoration:none;padding:8px 12px;border-radius:8px;opacity:.75}.sitebar a[aria-current]{background:rgba(255,255,255,.16);opacity:1}.sitebar a:hover{opacity:1}</style>
+<div class="sitebar"><div class="in"><a href="index.html" aria-current="page">🛒 Listas de compras</a><a href="receitas.html">📖 Receitas</a></div></div>
+<header class="hero"><div class="wrap hero-in">
+  <p class="eyebrow">Compra da semana · nov 2026</p>
+  <h1>Listas de compras</h1>
+  <p class="lede">Uma aba por supermercado, com a sua cor. Marquem os itens enquanto compram; as marcações ficam guardadas neste aparelho.</p>
+</div></header>
+<nav class="tabs" aria-label="Supermercados"><div class="wrap" role="tablist" id="tabs"></div></nav>
+<main class="wrap" id="main"></main>
+
+<script>
+const STORES = [
+ {id:"mercadona", name:"Mercadona", cls:"t-merc", color:"var(--merc)", pill:"De carro · 1–2× por mês",
+  intro:"Compra de estoque quando forem ao cinema: só coisas que duram semanas ou que congelam. Levem um saco térmico para os congelados.",
+  sections:[
+   {t:"Despensa", items:[
+    ["Patê de salmão 160 g","8 a 10 frascos","1,10 €","No Dia custa 1,55 €"],
+    ["Leguminosas cozidas","6 a 8 frascos","0,75–1,25 €","Lentilha, grão, feijão"],
+    ["Quinoa","2 pacotes","2,65 €"],
+    ["Atum claro e salmão ao natural","conforme o costume","4,20 € / 3,55 €"],
+    ["Milho doce pack 3","2","1,25 €"],
+    ["Ervilhas pack 3 e cogumelo laminado","1 de cada"],
+    ["Tomate triturado ou frito sem açúcar","3 a 4"],
+    ["Extrato de tomate","1 a 2","", "Escolher o que tem só tomate, sem açúcar"],
+    ["Azeitonas sem caroço pack 3","1 a 2","1,70–1,85 €"],
+    ["Corn flakes 0 % açúcares","2 a 3","1,50 €","Mesmo preço dos do Lupa e sem açúcar"],
+    ["Muesli crunchy 0 %","só se o Dia não tiver","2,00 €"],
+    ["Frutos secos sem sal","2","","Nozes, amêndoa, amendoim 0 %"],
+    ["Regañás","3 a 5","1,05 €"],
+    ["Pesto","1 a 2","1,95 €","No Dia 1,99 €, se acabar entre idas"],
+    ["Orégano e especiarias","o que faltar"],
+    ["Queijo ralado para pizza","2","1,60 €"],
+    ["Queijo em fatias light","1","2,90–3,00 €"],
+    ["Farinha (trigo, milho fina)","quando faltar","1,20 €"],
+    ["Margarina","1","1,50 €","No Dia custa 3,25 €"],
+    ["Gazpacho tradicional","no verão","1,50 €","No Dia o fresco custa 3,75 €"],
+    ["Tortilha de batata com cebola","1 a 2","2,60–2,80 €","Dura ~2 semanas no frigorífico"],
+    ["Chocolate negro 72–85 %","1 a 2 tabletes","","O docinho com melhor preço e saúde"]
+   ]},
+   {t:"Para congelar ou com validade longa", items:[
+    ["Massa de pizza familiar","4","1,50 €","Congela bem"],
+    ["Massa folhada (2 folhas)","2 packs","2,40 €","Congela"],
+    ["Peito de frango bandeja familiar","2 bandejas","","Dividir em porções e congelar"],
+    ["Contramuslo desossado / quarto traseiro","1 de cada","3,60 € / 5,70 €"],
+    ["Hambúrguer de vaca / lombo marinado","conforme o costume"],
+    ["Pratos congelados","conforme o costume","","Salmão com verduras 5,75 €, arroz de peixe 3,75 €, bolinhas de frango 3,70 €, hambúrguer de espinafre 2,00 €"],
+    ["Verduras congeladas","1 a 2 de cada","0,90–1,90 €","Pimento, cebola, espinafre, wok"],
+    ["Pizza fresca","2","2,90 €","Congelar se não for para essa semana"],
+    ["Empanada de atum","1","3,50 €"],
+    ["Mozzarella em fatias 200 g","4","1,80 €","Fechada dura semanas"],
+    ["Ovos campeiros 12 uds","2 dúzias","3,35 €","Duram ~4 semanas no frigorífico"],
+    ["Batata saco 5 kg","1","4,75 €","Se tiverem lugar fresco e escuro"]
+   ]},
+   {t:"Higiene e casa (leve)", items:[
+    ["Pasta de dentes, papel higiénico, rolo de cozinha","o que faltar"],
+    ["Toalhitas e pensos","o que faltar"],
+    ["Champô / máscara de cabelo","","2,00–2,10 €","No Dia a máscara custa 3,49 €"],
+    ["Detergente líquido da louça","1 a 2","1,90 €","O Fairy do Lupa custa 4,99 €"],
+    ["Sacos do lixo 40 uds","2 a 3","1,65–1,80 €"],
+    ["Lixívia com detergente","1","1,15 €"],
+    ["Papel de alumínio, sacos zip","quando faltar"],
+    ["Gel de banho","só se acabar o do Lupa","1,05–1,20 €"]
+   ]}
+  ]},
+ {id:"lupa", name:"Lupa", cls:"t-lupa", color:"var(--lupa)", pill:"Online · a cada 2–3 semanas",
+  intro:"Entrega em casa: só pesados e não perecíveis, nada fresco. Um pedido grande de cada vez para não pagar envio.",
+  sections:[
+   {t:"Água de mineralização muito fraca", items:[
+    ["Bezoya garrafão 5 L","15 a 20","2,25 €","0,45 €/L"],
+    ["Bezoya 1,5 L","só se precisarem de garrafa","0,74 €","0,49 €/L"],
+    ["Aquarel 1,5 L","só se o rótulo disser \"muy débil\"","0,65 €","0,43 €/L — se disser só \"débil\", não serve"]
+   ]},
+   {t:"Bebidas", items:[["Limonada Don Simón light 1,5 L","6 a 10","1,35 €"]]},
+   {t:"Limpeza e casa", items:[
+    ["Detergente de roupa 50 lavagens","1","3,40–3,50 €"],
+    ["Amaciador concentrado 80 lavagens","1","1,80 €"],
+    ["Gel de banho 1,25 L","5","1,20 €","0,96 €/L"],
+    ["Pastilhas de lava-louça 24","1","2,39 €"],
+    ["Sal de lava-louça 3 kg","1","1,55 €"],
+    ["Limpa-chãos","1","0,95 €"],
+    ["Gel WC com lixívia","1","0,95 €"],
+    ["Desinfetante de roupa","só se acabar","2,99 €"]
+   ]},
+   {t:"Despensa seca (se faltar antes do Mercadona)", items:[
+    ["Leguminosas cozidas marca própria","","0,75–0,80 €","As mais baratas de todas"],
+    ["Arroz 1 kg, massa 1 kg","marca própria"],
+    ["Azeite virgem extra 1 L","só a 5,39 € ou menos"]
+   ]}
+  ],
+  avoid:[["Água em garrafas de 0,5 L","1,30–1,44 €/L, mais de 2× o garrafão"],["Font Vella e San Joaquín","mineralização fraca, não muito fraca"],["Azeitonas Carbonell, quinoa de marca, pizzas e corn flakes normais","mais baratos ou mais saudáveis noutros sítios"]]},
+ {id:"dia", name:"Dia", cls:"t-dia", color:"var(--dia)", pill:"A pé · toda semana",
+  intro:"Fruta, verdura e frescos da semana. Ir com a lista para não trazer \"caprichos\" a mais.",
+  sections:[
+   {t:"Fruta e verdura", items:[
+    ["Banana","~1 kg","1,19–1,59 €/kg"],
+    ["Kiwi","1 a 2 bandejas","3,99 €","Comparar o €/kg com o kiwi a granel"],
+    ["Fruta da época","1 a 2","","Uva, ameixa, mandarina"],
+    ["Tomate pera","500 g a 1 kg","<2 €/kg"],
+    ["Tomate cherry","1","1,29–1,99 €"],
+    ["Abobrinha","~1 kg","1,29–1,79 €/kg"],
+    ["Brócolos","1","1,39 €"],
+    ["Alface romana / cogollos","1","1,19–1,29 €"],
+    ["Pimento tricolor","1","1,29–1,99 €"],
+    ["Cenoura","1 saco","1,19–1,39 €"],
+    ["Alho-francês","quando for preciso","2,49 €"],
+    ["Cebola malha 1,5 kg","a cada 2 semanas","1,59–1,99 €"],
+    ["Alho, limão ou lima","quando acabar"],
+    ["Abacate","se for para a semana","1,85–1,99 €"],
+    ["Fruta congelada para o iogurte","1 a 2","1,85–1,95 €","Manga, morango, frutos vermelhos"]
+   ]},
+   {t:"Frescos", items:[
+    ["Iogurte natural Danone 4×120 g","5 a 7 packs","1,00 €"],
+    ["Muesli crunchy 0 % 500 g","quando acabar","1,99 €","Igual ao Mercadona"],
+    ["Ovos M bandeja 24","1, se acabaram os do Mercadona","5,25 €","0,22 €/ovo"],
+    ["Leite semidesnatado s/ lactose 3×200 ml","1 a 2","0,99 €"],
+    ["Fiambre: presunto cozido, peito de peru","1 a 2","2,00–2,29 €"],
+    ["Peito de frango inteiro","só se acabou o estoque","6,49 €/kg"],
+    ["Coxinhas de frango","~0,6 kg","3,99 €/kg"],
+    ["Carne picada","quando for preciso","4,19–5,69 €"],
+    ["Peixe: bacalhau, dourada","1 vez por semana"],
+    ["Salpicão de marisco","de vez em quando","4,99 €","Atentos às ofertas de 2 unidades"],
+    ["Skyr natural","para variar","2,59 €"],
+    ["Mozzarella em fatias","só se acabou e estiver a 1,49 €"]
+   ]},
+   {t:"Pão", items:[
+    ["Barra de pão ou pão familiar 820 g","","0,50 € / 1,35 €"],
+    ["Pão de forma","1","1,29–1,35 €"],
+    ["Pão de hambúrguer","quando houver hambúrguer","0,99–1,69 €"],
+    ["Tortilhas de trigo 6 uds","1","1,99–2,35 €"],
+    ["Pão de queijo sem glúten","1 a 2","2,99 €"]
+   ]},
+   {t:"Pratos prontos e docinhos (de vez em quando)", items:[
+    ["Gnocchi com frango","1","2,35 €"],
+    ["Quinoa com verduras","1","2,19 €","Mais barato: quinoa do Mercadona + verduras congeladas"],
+    ["Coalhada ou arroz-doce","1","1,39–1,45 €"]
+   ]}
+  ],
+  avoid:[["Batatas fritas gourmet, croquetes, bombons","~45 € no ano só em batatas; petisco: pipocas caseiras ou amendoim sem sal"],["Patê, massas de pizza e folhada, pizzas, margarina","aqui são mais caros — ficam para o Mercadona"]]},
+ {id:"unide", name:"Unide", cls:"t-unide", color:"var(--unide)", pill:"A pé · reposição",
+  intro:"Para o que acabar entre as compras grandes.",
+  sections:[
+   {t:"Reposição", items:[
+    ["Iogurte natural Danone","se faltar","1,00 €","Igual ao Dia"],
+    ["Batata 3+1 kg","se acabar a do Mercadona","4,65 €","1,16 €/kg, mais barata que no Dia"],
+    ["Sal de lava-louça 2 kg","se faltar","1,00 €"],
+    ["Creme de abóbora 500 g","1 a 2","1,00 €"],
+    ["Leite em pó Sveltesse 400 g","quando acabar","6,35 €"],
+    ["Tortellini","de vez em quando","3,65 €"]
+   ]}
+  ],
+  avoid:[["Patê, ovos em dúzia e gelatina Royal","1,39 € / 3,59 € / 2,90 € — mais baratos noutros sítios"]]}
+];
+
+const KEY="listas-compras-v1";
+let state={};
+try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const tabs=document.getElementById("tabs"), main=document.getElementById("main");
+const TABS=[{id:"resumo",name:"Resumo",cls:""},...STORES];
+tabs.innerHTML=TABS.map(t=>{
+  const n=t.sections?t.sections.reduce((a,s)=>a+s.items.length,0):"";
+  return `<button class="tab ${t.cls}" role="tab" data-id="${t.id}" aria-selected="false">${t.sections?'<span class="dot"></span>':''}${t.name}${n?` <span class="n" id="n-${t.id}">${n}</span>`:''}</button>`;
+}).join("");
+
+function resumo(){
+  return `<section id="p-resumo" role="tabpanel">
+  <div class="cards">
+   ${STORES.map(s=>`<div class="card" style="--c:${s.color}"><h3>${s.name}</h3><p><b>${s.pill}</b></p><p class="muted">${s.intro}</p><p><button class="btn go" data-go="${s.id}" style="--c:${s.color}">Abrir lista</button></p></div>`).join("")}
+  </div>
+  <p class="tip">Marca não importa: escolham sempre a mais barata olhando o €/kg da etiqueta e, entre duas parecidas, a que tiver menos açúcar e sal. Os preços são os dos vossos tickets, como referência.</p>
+  <h2 class="sub">Cereais para o iogurte</h2>
+  <div class="cards">
+   <div class="card" style="--c:var(--dia)"><h3>Muesli crunchy 0 %</h3><p>Hoje: Mercadona, 500 g a 1,90–2,00 €.</p><p><b>Igual no Dia:</b> Crunchy muesli 0 % Gran Dia 500 g a 1,99 € — mesmo tipo e dá para comprar a pé. Provem um pacote antes de trocar de vez.</p><p><span class="tag" style="--c:var(--dia)">Dia</span> <span class="tag" style="--c:var(--merc)">Mercadona</span></p></div>
+   <div class="card" style="--c:var(--merc)"><h3>Corn flakes</h3><p>Hoje: Lupa, 500 g a 1,50 €, versão com açúcar.</p><p><b>Melhor:</b> corn flakes 0 % açúcares do Mercadona, também a 1,50 € e com menos de 1 g de açúcar por 100 g.</p><p><span class="tag" style="--c:var(--merc)">Mercadona</span></p></div>
+  </div>
+  <h2 class="sub">Docinhos — as melhores escolhas</h2>
+  <div class="cards">
+   <div class="card" style="--c:var(--merc)"><h3>Chocolate negro 72–85 %</h3><p>Melhor relação preço–saúde. O saco de porções 72 % sai caro por kg (200 g a 3,25–3,65 €); em tablete costuma sair mais barato. Porções 85 % a 1,95 €.</p><p><span class="tag" style="--c:var(--merc)">Mercadona</span></p></div>
+   <div class="card" style="--c:var(--merc)"><h3>Chocolate com leite 0 % açúcares</h3><p>125 g a 1,25 € — mais barato que o Nestlé Extrafino do Lupa (125 g, 1,49 €) e com muito menos açúcar.</p><p><span class="tag" style="--c:var(--merc)">Mercadona</span></p></div>
+   <div class="card" style="--c:var(--dia)"><h3>Coalhada ou arroz-doce</h3><p>1,39–1,45 €, de vez em quando.</p><p><span class="tag" style="--c:var(--dia)">Dia</span></p></div>
+   <div class="card" style="--c:var(--merc)"><h3>Gelatina</h3><p>A do Mercadona (+proteínas, 1,55 €) em vez da Royal do Unide (2,90 €).</p><p><span class="tag" style="--c:var(--merc)">Mercadona</span></p></div>
+  </div>
+  <p class="tip">Menos vantajosos: bombons de licor (2,79 €), gomas e barrinhas — pelo mesmo dinheiro, uma tablete de chocolate negro rende mais dias.</p>
+  </section>`;
+}
+function storePanel(s){
+  let html=`<section id="p-${s.id}" role="tabpanel" class="store" style="--c:${s.color}" hidden>
+   <div class="banner"><div class="top"><h2>${s.name}</h2><span class="pill">${s.pill}</span></div><p>${s.intro}</p></div>
+   <div class="bar"><div class="prog"><small id="c-${s.id}"></small><div class="track"><i id="b-${s.id}"></i></div></div>
+   <button class="btn left" data-s="${s.id}" aria-pressed="false">Mostrar só o que falta</button>
+   <button class="btn clear" data-s="${s.id}">Desmarcar tudo</button></div>`;
+  s.sections.forEach((sec,si)=>{
+    html+=`<div class="sec"><h3>${esc(sec.t)}</h3><ul class="items">`;
+    sec.items.forEach((it,ii)=>{
+      const k=`${s.id}-${si}-${ii}`, on=!!state[k];
+      html+=`<li class="item${on?" done":""}"><label><input type="checkbox" data-k="${k}"${on?" checked":""}><span class="name">${esc(it[0])}${it[1]?` <span class="qty">· ${esc(it[1])}</span>`:""}</span>${it[2]?`<span class="price">${esc(it[2])}</span>`:"<span></span>"}${it[3]?`<span class="note">${esc(it[3])}</span>`:""}</label></li>`;
+    });
+    html+=`</ul></div>`;
+  });
+  if(s.avoid) html+=`<div class="sec"><h3>Não comprar aqui</h3><div class="avoid">${s.avoid.map(a=>`<p><b>${esc(a[0])}</b> — ${esc(a[1])}</p>`).join("")}</div></div>`;
+  return html+`</section>`;
+}
+main.innerHTML=resumo()+STORES.map(storePanel).join("");
+
+function progress(id){
+  const p=document.getElementById("p-"+id), all=p.querySelectorAll("input[type=checkbox]"), on=p.querySelectorAll("input:checked");
+  document.getElementById("c-"+id).textContent=`${on.length} de ${all.length} marcados`;
+  document.getElementById("b-"+id).style.width=(all.length?on.length/all.length*100:0)+"%";
+  const n=document.getElementById("n-"+id); if(n) n.textContent=all.length-on.length;
+}
+STORES.forEach(s=>progress(s.id));
+
+main.addEventListener("change",e=>{
+  const k=e.target.dataset.k; if(!k) return;
+  if(e.target.checked) state[k]=1; else delete state[k];
+  e.target.closest(".item").classList.toggle("done",e.target.checked);
+  save(); progress(k.split("-")[0]);
+});
+main.addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  if(b.classList.contains("go")) return show(b.dataset.go,true);
+  const id=b.dataset.s, p=document.getElementById("p-"+id);
+  if(b.classList.contains("left")){const on=b.getAttribute("aria-pressed")!=="true";b.setAttribute("aria-pressed",on);p.classList.toggle("onlyleft",on)}
+  if(b.classList.contains("clear")){p.querySelectorAll("input:checked").forEach(i=>{i.checked=false;delete state[i.dataset.k];i.closest(".item").classList.remove("done")});save();progress(id)}
+});
+function show(id,push){
+  if(!TABS.some(t=>t.id===id)) id="resumo";
+  tabs.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.id===id));
+  main.querySelectorAll("[role=tabpanel]").forEach(p=>p.hidden=p.id!=="p-"+id);
+  if(push && location.hash!=="#"+id) location.hash=id;
+  window.scrollTo({top:0});
+}
+tabs.addEventListener("click",e=>{const t=e.target.closest(".tab"); if(t) show(t.dataset.id,true)});
+window.addEventListener("hashchange",()=>show(location.hash.slice(1)));
+show(location.hash.slice(1)||"resumo");
+</script>
+</body>
+</html>
