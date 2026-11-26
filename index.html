@@ -92,6 +92,9 @@ ul.items{list-style:none;margin:0;padding:4px 0}
 .note{grid-column:2 / -1;font-size:.88rem;color:var(--muted);margin-top:-2px}
 .price{font-size:.85rem;font-weight:700;white-space:nowrap;padding:2px 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 12%,var(--surface));color:color-mix(in srgb,var(--c) 75%,var(--ink));font-variant-numeric:tabular-nums}
 .item input:checked ~ .name,.item input:checked ~ .name .qty{text-decoration:line-through;color:var(--muted)}
+.where{grid-column:2 / -1;justify-self:start;font-size:.82rem;line-height:1.35;padding:3px 9px;border-radius:7px;border-left:3px solid var(--w);background:color-mix(in srgb,var(--w) 11%,var(--surface));color:var(--ink)}
+.where b{color:color-mix(in srgb,var(--w) 75%,var(--ink))}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin:-4px 0 14px}
 .store.onlyleft .item.done{display:none}
 .avoid{padding:12px 16px;display:grid;gap:6px}
 .avoid p{margin:0;font-size:.93rem;color:var(--muted)}
@@ -121,98 +124,133 @@ ul.items{list-style:none;margin:0;padding:4px 0}
 <script>
 const STORES = [
  {id:"mercadona", name:"Mercadona", cls:"t-merc", color:"var(--merc)", pill:"De carro · 1–2× por mês",
-  intro:"Compra de estoque quando forem ao cinema: só coisas que duram semanas ou que congelam. Levem um saco térmico para os congelados.",
+  intro:"Compra de estoque quando forem ao cinema: o que dura semanas ou congela. Nas semanas em que forem ao Mercadona provavelmente não vão ao Dia, por isso há também uma secção com o fresco da semana — com o aviso de onde sai mais barato.",
   sections:[
    {t:"Fruta e legumes que duram", items:[
-    ["Batata saco 5 kg","1","4,75 €","0,95 €/kg, a mais barata. Guardar em lugar fresco e escuro"],
-    ["Cebola","1 malha","","Dura semanas fora da geladeira"],
+    ["Batata saco 5 kg","1","5,30 €","1,06 €/kg, a mais barata. Guardar em lugar fresco e escuro"],
+    ["Cebola","1 malha ou tubo","1,50 €","Dura semanas fora da geladeira"],
     ["Alho","1 malha","1,85 €"],
-    ["Cenoura","1 a 2 sacos","1,00–1,20 €","Dura 2–3 semanas na geladeira"],
+    ["Cenoura","1 a 2 sacos","1,20 €","Dura 2–3 semanas na geladeira"],
     ["Abóbora","1 pedaço ou inteira","","Inteira dura semanas"],
     ["Maçã","1 bandeja ou ~1 kg","","Dura 3–4 semanas na geladeira"],
     ["Laranja / mandarina","1 malha","","Dura 2–3 semanas"],
-    ["Tomate pera","~1 kg","1,80 €/kg","Mais barato que no Dia; só para a primeira semana"],
+    ["Tomate pera","~1 kg","1,80 €/kg","Para a primeira semana",["here","no Dia 2–4 €/kg"]],
     ["Repolho","½ ou inteiro","2,42 €","Dura 2–3 semanas na geladeira"]
    ]},
+   {t:"Fresco da semana (se não forem ao Dia)", items:[
+    ["Banana","~1 kg","1,55 €/kg","",["dia","1,19–1,59 €/kg. Aqui: só ~1 kg para a semana"]],
+    ["Abobrinha","~1 kg","1,90 €/kg","",["dia","1,29–1,79 €/kg. Aqui: só o da semana"]],
+    ["Cogollos / alface","1","2,00 €","",["dia","1,19–1,29 €. Aqui: 1 só"]],
+    ["Tomate cherry 500 g","1","2,20 €","",["dia","1,29–1,99 €. Aqui: 1 só"]],
+    ["Brócolos","1","1,80 €","",["dia","1,39 €. Aqui: 1 só"]],
+    ["Kiwi","1 bandeja","4,75–5,15 €","",["eq","comparem o €/kg com o Dia (Zespri 3,99 €/bandeja)"]],
+    ["Leite semidesnatado 1 L","conforme o consumo","0,83 €"],
+    ["Mozzarella fresca","1 a 2","0,90 €"],
+    ["Gazpacho fresco","no verão","1,10 €","",["here","no Dia 3,75 €"]]
+   ]},
    {t:"Despensa", items:[
-    ["Arroz","2 a 3 kg","","Marca própria; comparar o €/kg (no Lupa pagaram 1,98 €/kg)"],
-    ["Milho de pipoca","2 a 3","0,86–1,05 €","Petisco barato e saudável no lugar das batatas fritas"],
-    ["Patê de salmão 160 g","8 a 10 frascos","1,10 €","No Dia custa 1,55 €"],
-    ["Leguminosas cozidas","6 a 8 frascos","0,75–1,25 €","Lentilha, grão, feijão"],
-    ["Quinoa","2 pacotes","2,65 €"],
+    ["Patê de salmão 160 g","8 a 10 frascos","1,10 €","",["here","no Dia 1,55 €, no Unide 1,39 € (125 g)"]],
+    ["Azeite virgem extra 1 L","1 a 2","5,25 €","",["here","no Lupa e no Dia 5,39 €"]],
+    ["Arroz","2 a 3 kg","1,98 €/kg","Vaporizado. Comparem com o agulha ou redondo de marca própria, que costumam sair mais baratos",["eq","no Lupa também 1,98 €"]],
+    ["Leguminosas cozidas","6 a 8 frascos","0,75–0,90 €","Lentilha 0,90 €, grão 0,80 €, feijão branco 0,75 €",["eq","no Lupa 0,75–0,80 €"]],
+    ["Quinoa","2 a 3 pacotes","2,65 €","",["here","no Lupa a de marca sai 3× mais cara"]],
     ["Atum claro e salmão ao natural","conforme o costume","4,20 € / 3,55 €"],
-    ["Milho doce pack 3","2","1,25 €"],
-    ["Ervilhas pack 3 e cogumelo laminado","1 de cada"],
-    ["Tomate triturado ou frito sem açúcar","3 a 4"],
-    ["Extrato de tomate","1 a 2","", "Escolher o que tem só tomate, sem açúcar"],
-    ["Azeitonas sem caroço pack 3","1 a 2","1,70–1,85 €"],
-    ["Corn flakes 0 % açúcares","2 a 3","1,50 €","Mesmo preço dos do Lupa e sem açúcar"],
-    ["Muesli crunchy 0 %","só se o Dia não tiver","2,00 €"],
+    ["Milho doce pack 3","2","1,55 €","",["eq","no Lupa e no Dia 1,55 €"]],
+    ["Ervilhas pack 3","1 a 2","1,75 €"],
+    ["Cogumelo laminado","1 a 2","1,80 €"],
+    ["Tomate frito brick","3 a 4","0,95 €","Ou triturado. Preferir sem açúcar adicionado"],
+    ["Extrato de tomate","1 a 2","","Escolher o que tem só tomate, sem açúcar"],
+    ["Azeitonas sem caroço pack 3","1 a 2","1,85 €","As mais baratas. Chupadedos (3,30 €) e pretas (3,00 €) são extra"],
+    ["Cebolinhas em conserva","1","1,65 €"],
+    ["Nata para cozinhar","1","1,85 €"],
+    ["Corn flakes 0 % açúcares","2 a 3","1,50 €","",["here","os do Lupa custam o mesmo mas levam açúcar"]],
+    ["Muesli crunchy 0 %","2 a 3","1,90 €","",["eq","no Dia 1,99 €"]],
+    ["Milho de pipoca","3 a 4","1,05 €","Petisco barato e saudável no lugar das batatas fritas"],
     ["Frutos secos sem sal","2","","Nozes, amêndoa, amendoim 0 %"],
-    ["Regañás","3 a 5","1,05 €"],
+    ["Regañás","4 a 6","1,05 €"],
     ["Tostas integrais","1 a 2","1,55 €"],
     ["Pão de forma","1 a 2","","Congelar e torrar as fatias direto do congelador"],
-    ["Pesto","1 a 2","1,95 €","No Dia 1,99 €, se acabar entre idas"],
+    ["Pesto","1 a 2","1,95 €","",["eq","no Dia e no Lupa 1,99 €"]],
+    ["Allioli","1","1,60 €"],
     ["Orégano e especiarias","o que faltar"],
     ["Queijo ralado para pizza","2","1,60 €"],
     ["Queijo em fatias light","1","2,90–3,00 €"],
     ["Farinha (trigo, milho fina)","quando faltar","1,20 €"],
-    ["Margarina","1","1,50 €","No Dia custa 3,25 €"],
-    ["Manteiga 250 g","1 a 2","","Marca própria; dura semanas fechada e congela. No Dia as de marca custam ~3,75 €"],
-    ["Gazpacho tradicional","no verão","1,50 €","No Dia o fresco custa 3,75 €"],
-    ["Tortilha de batata com cebola","1 a 2","2,60–2,80 €","Dura ~2 semanas no frigorífico"],
+    ["Margarina com sal","1 a 2","1,50 €","",["here","no Dia 3,25 €"]],
+    ["Manteiga 250 g","1","","Marca própria; dura semanas fechada e congela",["here","no Dia as de marca ~3,75 €"]],
+    ["Tortilha de batata com cebola","1","2,60–2,80 €","Dura ~2 semanas na geladeira"],
     ["Chocolate negro 72–85 %","1 a 2 tabletes","","O docinho com melhor preço e saúde"]
    ]},
    {t:"Para congelar ou com validade longa", items:[
-    ["Massa de pizza familiar","4","1,50 €","Congela bem"],
-    ["Massa folhada (2 folhas)","2 packs","2,40 €","Congela"],
-    ["Peito de frango bandeja familiar","2 bandejas","","Dividir em porções e congelar"],
-    ["Contramuslo desossado / quarto traseiro","1 de cada","3,60 € / 5,70 €"],
-    ["Hambúrguer de vaca / lombo marinado","conforme o costume"],
-    ["Pratos congelados","conforme o costume","","Salmão com verduras 5,75 €, arroz de peixe 3,75 €, bolinhas de frango 3,70 €, hambúrguer de espinafre 2,00 €"],
-    ["Verduras congeladas","1 a 2 de cada","0,90–1,90 €","Pimento, cebola, espinafre, wok"],
+    ["Ovos frescos 24 uds","1 bandeja","5,25 €","0,22 €/ovo. Duram ~4 semanas na geladeira",["eq","no Dia o mesmo preço"]],
+    ["Ovos campeiros 12 uds","se preferirem","3,35 €","0,28 €/ovo"],
+    ["Massa de pizza familiar","2 a 4","1,50 €","Congela bem",["here","no Dia 1,69–1,89 €"]],
+    ["Massa folhada (2 folhas)","1 a 2 packs","2,40 €","Congela",["here","no Dia 1,47 € por 1 folha"]],
+    ["Pão de hambúrguer brioche","1","1,10 €","Congela",["here","no Dia 1,69 €"]],
+    ["Peito de frango","1 a 2 bandejas","6,50–7,50 €","Dividir em porções e congelar"],
+    ["Contramuslo sem pele / quarto traseiro","1","3,30 € / 6,00 €"],
+    ["Hambúrguer de lombo / de vaca","conforme o costume","4,00–5,50 €"],
+    ["Lombo de porco (solomillo)","conforme o costume","4,70–6,90 €"],
+    ["Pratos congelados","conforme o costume","","Salmão com verduras 5,75 €, arroz de peixe 3,75 €, bolinhas de frango 3,70 €, hambúrguer de abóbora/espinafre 1,80–2,40 €"],
+    ["Verduras congeladas","1 a 2 de cada","0,95–1,90 €","Pimento, cebola, espinafre, wok"],
     ["Pizza fresca","2","2,90 €","Congelar se não for para essa semana"],
     ["Empanada de atum","1","3,50 €"],
-    ["Mozzarella em fatias 200 g","4","1,80 €","Fechada dura semanas"],
-    ["Ovos campeiros 12 uds","2 dúzias","3,35 €","Duram ~4 semanas no frigorífico"]
+    ["Mozzarella em fatias 200 g","2 a 4","1,80 €","Fechada dura semanas",["eq","no Lupa 1,80 €"]]
    ]},
-   {t:"Higiene e casa (leve)", items:[
-    ["Pasta de dentes, papel higiénico, rolo de cozinha","o que faltar"],
-    ["Toalhitas e pensos","o que faltar"],
-    ["Champô / máscara de cabelo","","2,00–2,10 €","No Dia a máscara custa 3,49 €"],
-    ["Detergente líquido da louça","1 a 2","1,90 €","O Fairy do Lupa custa 4,99 €"],
+   {t:"Higiene e casa", items:[
+    ["Papel higiénico","1","4,60 €"],
+    ["Rolo de cozinha jumbo","1 a 2","3,75 €"],
+    ["Pasta de dentes, toalhitas, pensos, lenços","o que faltar"],
+    ["Champô / máscara de cabelo","","2,00–2,10 €","",["here","no Dia a máscara custa 3,49 €"]],
+    ["Detergente líquido da louça","1 a 2","1,90 €","",["here","no Lupa o Fairy custa 4,99 €"]],
+    ["Esfregão","1","0,90 €"],
     ["Sacos do lixo 40 uds","2 a 3","1,65–1,80 €"],
     ["Lixívia com detergente","1","1,15 €"],
     ["Papel de alumínio, sacos zip","quando faltar"],
-    ["Gel de banho","só se acabar o do Lupa","1,05–1,20 €"]
+    ["Detergente de roupa","1","3,50 €","",["eq","no Lupa 3,40–3,50 € — comprem onde estiverem"]],
+    ["Amaciador","1","1,80 €","",["eq","no Lupa 1,80 €"]],
+    ["Gel de banho","2 a 4","1,20 €","",["eq","no Lupa 1,20 € (frasco de 1,25 L)"]],
+    ["Limpa-chãos","só se estiver a acabar","1,70 €","",["lupa","0,95 €. Aqui: 1 só, se faltar"]],
+    ["Gel WC","só se estiver a acabar","1,65 €","",["lupa","0,95 €. Aqui: 1 só, se faltar"]]
    ]}
   ]},
  {id:"lupa", name:"Lupa", cls:"t-lupa", color:"var(--lupa)", pill:"Online · a cada 2–3 semanas",
-  intro:"Entrega em casa: só pesados e não perecíveis, nada fresco. Um pedido grande de cada vez para não pagar envio.",
+  intro:"Entrega em casa: pesados e não perecíveis, nada fresco. Um pedido grande de cada vez para não pagar envio. Se não forem ao Mercadona nessa altura, a última secção diz o que vale a pena pedir aqui.",
   sections:[
    {t:"Água de mineralização muito fraca", items:[
     ["Bezoya garrafão 5 L","15 a 20","2,25 €","0,45 €/L"],
     ["Bezoya 1,5 L","só se precisarem de garrafa","0,74 €","0,49 €/L"],
     ["Aquarel 1,5 L","só se o rótulo disser \"muy débil\"","0,65 €","0,43 €/L — se disser só \"débil\", não serve"]
    ]},
-   {t:"Bebidas", items:[["Limonada Don Simón light 1,5 L","6 a 10","1,35 €"]]},
+   {t:"Bebidas", items:[["Limonada Don Simón light 1,5 L","6 a 10","1,35 €","",["here","no Dia 1,45 €"]]]},
    {t:"Limpeza e casa", items:[
-    ["Detergente de roupa 50 lavagens","1","3,40–3,50 €"],
-    ["Amaciador concentrado 80 lavagens","1","1,80 €"],
-    ["Gel de banho 1,25 L","5","1,20 €","0,96 €/L"],
+    ["Limpa-chãos","1 a 2","0,95 €","",["here","no Mercadona 1,70 €"]],
+    ["Gel WC com lixívia","1 a 2","0,95 €","",["here","no Mercadona 1,65 €"]],
+    ["Detergente de roupa 50 lavagens","1","3,40–3,50 €","",["eq","no Mercadona 3,50 €"]],
+    ["Amaciador concentrado 80 lavagens","1","1,80 €","",["eq","no Mercadona 1,80 €"]],
+    ["Gel de banho 1,25 L","3 a 5","1,20 €","0,96 €/L",["eq","no Mercadona 1,20 € (frasco menor)"]],
     ["Pastilhas de lava-louça 24","1","2,39 €"],
-    ["Sal de lava-louça 3 kg","1","1,55 €"],
-    ["Limpa-chãos","1","0,95 €"],
-    ["Gel WC com lixívia","1","0,95 €"],
+    ["Sal de lava-louça 3 kg","1","1,55 €","0,52 €/kg",["eq","no Unide 2 kg a 1,00 €"]],
     ["Desinfetante de roupa","só se acabar","2,99 €"]
    ]},
-   {t:"Despensa seca (se faltar antes do Mercadona)", items:[
-    ["Leguminosas cozidas marca própria","","0,75–0,80 €","As mais baratas de todas"],
-    ["Arroz 1 kg, massa 1 kg","marca própria"],
-    ["Azeite virgem extra 1 L","só a 5,39 € ou menos"]
+   {t:"Despensa (se não forem ao Mercadona nessa altura)", items:[
+    ["Leguminosas cozidas marca própria","4 a 6","0,75–0,80 €","",["here","as mais baratas de todas"]],
+    ["Arroz 1 kg","1 a 2","1,98 €","",["eq","no Mercadona 1,98 €"]],
+    ["Massa 1 kg (marca própria)","1 a 2"],
+    ["Milho doce pack 3","1 a 2","1,55 €","",["eq","no Mercadona 1,55 €"]],
+    ["Ervilhas pack 3","1","1,75 €","",["eq","no Mercadona 1,75 €"]],
+    ["Atum claro pack 3","1 a 2","2,35 €"],
+    ["Tomate frito pack 3 × 350 g","1","1,79 €"],
+    ["Especiarias marca própria","o que faltar","0,65–0,98 €"],
+    ["Mozzarella em fatias 200 g","1 a 2","1,80 €","",["eq","no Mercadona 1,80 €"]],
+    ["Azeite virgem extra 1 L","1, se faltar","5,39 €","",["merc","5,25 €. Aqui: só se faltar"]],
+    ["Cogumelo laminado pack 3","1, se faltar","2,22 €","",["merc","1,80 €. Aqui: só se faltar"]],
+    ["Pesto 190 g","1, se faltar","1,99–2,49 €","",["merc","1,95 €. Aqui: só se faltar"]],
+    ["Corn flakes","1, se faltar","1,50 €","Os daqui levam açúcar",["merc","0 % açúcar ao mesmo preço. Aqui: só se faltar"]],
+    ["Leite sem lactose 6 × 200 ml","só se faltar","3,05 €","",["dia","3 × 200 ml a 0,99 €. Aqui: 1 pack só se faltar"]]
    ]}
   ],
-  avoid:[["Água em garrafas de 0,5 L","1,30–1,44 €/L, mais de 2× o garrafão"],["Font Vella e San Joaquín","mineralização fraca, não muito fraca"],["Azeitonas Carbonell, quinoa de marca, pizzas e corn flakes normais","mais baratos ou mais saudáveis noutros sítios"]]},
+  avoid:[["Água em garrafas de 0,5 L","1,30–1,44 €/L, mais de 2× o garrafão"],["Font Vella e San Joaquín","mineralização fraca, não muito fraca"],["Azeitonas de marca, quinoa de marca, pizzas e massas de pizza","bem mais baratos no Mercadona"],["Frescos (iogurte, ovos, fruta)","combinado: nada fresco do Lupa"]]},
  {id:"dia", name:"Dia", cls:"t-dia", color:"var(--dia)", pill:"A pé · toda semana",
   intro:"Fruta, verdura e frescos da semana. Ir com a lista para não trazer \"caprichos\" a mais.",
   sections:[
@@ -236,7 +274,7 @@ const STORES = [
    {t:"Frescos", items:[
     ["Iogurte natural Danone 4×120 g","5 a 7 packs","1,00 €"],
     ["Muesli crunchy 0 % 500 g","quando acabar","1,99 €","Igual ao Mercadona"],
-    ["Ovos M bandeja 24","1, se acabaram os do Mercadona","5,25 €","0,22 €/ovo"],
+    ["Ovos M bandeja 24","1, se acabaram os do Mercadona","5,25 €","0,22 €/ovo",["eq","no Mercadona 24 ovos a 5,25 €"]],
     ["Leite semidesnatado s/ lactose 3×200 ml","1 a 2","0,99 €"],
     ["Fiambre: presunto cozido, peito de peru","1 a 2","2,00–2,29 €"],
     ["Peito de frango inteiro","só se acabou o estoque","6,49 €/kg"],
@@ -250,7 +288,7 @@ const STORES = [
    {t:"Pão", items:[
     ["Barra de pão ou pão familiar 820 g","","0,50 € / 1,35 €"],
     ["Pão de forma","1","1,29–1,35 €"],
-    ["Pão de hambúrguer","quando houver hambúrguer","0,99–1,69 €"],
+    ["Pão de hambúrguer","quando houver hambúrguer","0,99 €","Normal 0,99 €; o brioche aqui custa 1,69 €",["merc","brioche 1,10 €"]],
     ["Tortilhas de trigo 6 uds","1","1,99–2,35 €"],
     ["Pão de queijo sem glúten","1 a 2","2,99 €"]
    ]},
@@ -276,7 +314,7 @@ const STORES = [
   avoid:[["Patê, ovos em dúzia e gelatina Royal","1,39 € / 3,59 € / 2,90 € — mais baratos noutros sítios"]]}
 ];
 
-const KEY="listas-compras-v1";
+const KEY="listas-compras-v2";
 let state={};
 try{state=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){state={}}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}};
@@ -310,9 +348,12 @@ function resumo(){
   <p class="tip">Menos vantajosos: bombons de licor (2,79 €), gomas e barrinhas — pelo mesmo dinheiro, uma tablete de chocolate negro rende mais dias.</p>
   </section>`;
 }
+const BADGE={dia:["var(--dia)","🔴 Melhor no Dia"],lupa:["var(--lupa)","🟡 Melhor no Lupa"],merc:["var(--merc)","🟢 Melhor no Mercadona"],here:["var(--c)","⭐ Melhor aqui"],eq:["var(--muted)","⚖️ Mesmo preço"]};
+function badge(b){const d=BADGE[b[0]];return `<span class="where" style="--w:${d[0]}"><b>${d[1]}</b>${b[1]?" — "+esc(b[1]):""}</span>`;}
 function storePanel(s){
   let html=`<section id="p-${s.id}" role="tabpanel" class="store" style="--c:${s.color}" hidden>
    <div class="banner"><div class="top"><h2>${s.name}</h2><span class="pill">${s.pill}</span></div><p>${s.intro}</p></div>
+   ${s.sections.some(x=>x.items.some(i=>i[4]))?`<div class="legend">${["here","eq","dia","lupa","merc"].filter(k=>!(k==="merc"&&s.id==="mercadona")&&!(k==="lupa"&&s.id==="lupa")&&!(k==="dia"&&s.id==="dia")).map(k=>badge([k,""])).join("")}</div>`:""}
    <div class="bar"><div class="prog"><small id="c-${s.id}"></small><div class="track"><i id="b-${s.id}"></i></div></div>
    <button class="btn left" data-s="${s.id}" aria-pressed="false">Mostrar só o que falta</button>
    <button class="btn clear" data-s="${s.id}">Desmarcar tudo</button></div>`;
@@ -320,7 +361,7 @@ function storePanel(s){
     html+=`<div class="sec"><h3>${esc(sec.t)}</h3><ul class="items">`;
     sec.items.forEach((it,ii)=>{
       const k=`${s.id}-${si}-${ii}`, on=!!state[k];
-      html+=`<li class="item${on?" done":""}"><label><input type="checkbox" data-k="${k}"${on?" checked":""}><span class="name">${esc(it[0])}${it[1]?` <span class="qty">· ${esc(it[1])}</span>`:""}</span>${it[2]?`<span class="price">${esc(it[2])}</span>`:"<span></span>"}${it[3]?`<span class="note">${esc(it[3])}</span>`:""}</label></li>`;
+      html+=`<li class="item${on?" done":""}"><label><input type="checkbox" data-k="${k}"${on?" checked":""}><span class="name">${esc(it[0])}${it[1]?` <span class="qty">· ${esc(it[1])}</span>`:""}</span>${it[2]?`<span class="price">${esc(it[2])}</span>`:"<span></span>"}${it[3]?`<span class="note">${esc(it[3])}</span>`:""}${it[4]?badge(it[4]):""}</label></li>`;
     });
     html+=`</ul></div>`;
   });
